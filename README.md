@@ -1,57 +1,71 @@
-# Repo Title REPLACE
-<a href="http://dev.bandwidth.com"><img src="https://s3.amazonaws.com/bwdemos/BW-VMP.png"/></a>
-</div>
+# WebRTC Hello World
 
- # Table of Contents
+This sample app shows the simplest way to get a phone to talk to a browser through Bandwidth's WebRTC and Voice APIs.
 
-<!-- TOC -->
+## Architecture Overview
 
-- [Repo Title REPLACE](#repo-title-replace)
-- [Description](#description)
-- [Bandwidth](#bandwidth)
-- [Environmental Variables](#environmental-variables)
-- [Callback URLs](#callback-urls)
-    - [Ngrok](#ngrok)
+<img src="./WebRTC Hello World.svg">
 
-<!-- /TOC -->
+This app runs an HTTP server that listens for requests from browsers to get connection information. This connection information tells a browser the unique ID it should use to join a WebRTC conference. The HTTP server will also handle requests coming from Bandwidth's Voice API when a phone call comes in.
 
-# Description
-A short description of your sample app and its capabilities. 
+The server connects to Bandwidth's HTTP WebRTC API, which it will use to create a conference and participant IDs. You can also choose to use a Bandwidth WebRTC SDK, but in this simple example, we make the HTTP calls ourselves.
 
-# Bandwidth
+The web browser will also use a websocket managed by the WebRTC browser SDK to handle signaling to the WebRTC API. Once both a browser and a phone have joined the conference, they will be able to talk to each other.
 
-In order to use the Bandwidth API users need to set up the appropriate application at the [Bandwidth Dashboard](https://dashboard.bandwidth.com/) and create API tokens.
+> Note: This is a very simplistic demo and it is not designed to handle multiple browsers or multiple phones.<br/> Unless you are running on `localhost`, you will need to use HTTPS. Most modern browsers require a secure context when accessing cameras and microphones.
 
-To create an application log into the [Bandwidth Dashboard](https://dashboard.bandwidth.com/) and navigate to the `Applications` tab.  Fill out the **New Application** form selecting the service (Messaging or Voice) that the application will be used for.  All Bandwidth services require publicly accessible Callback URLs, for more information on how to set one up see [Callback URLs](#callback-urls).
+## Setting things up
 
-For more information about API credentials see [here](https://dev.bandwidth.com/guides/accountCredentials.html#top)
+To run this sample, you'll need a Bandwidth phone number, Voice API credentials and WebRTC enabled for your account. Please check with your account manager to ensure you are provisioned for WebRTC.
 
-# Environmental Variables
-The sample app uses the below environmental variables.
-```java
-BANDWIDTH_ACCOUNT_ID                 // Your Bandwidth Account Id
-BANDWIDTH_USERNAME                   // Your Bandwidth API Token
-BANDWIDTH_PASSWORD                   // Your Bandwidth API Secret
-BANDWIDTH_PHONE_NUMBER                // Your The Bandwidth Phone Number
-BANDWIDTH_VOICE_APPLICATION_ID       // Your Voice Application Id created in the dashboard
-BANDWIDTH_MESSAGING_APPLICATION_ID   // Your Messaging Application Id created in the dashboard
-BASE_URL                             // Your public base url
-PORT                                 // The port number you wish to run the sample on
+This sample will need be publicly accessible to the internet in order for Bandwidth API callbacks to work properly. Otherwise you'll need a tool like [ngrok](https://ngrok.com) to provide access from Bandwidth API callbacks to localhost.
+
+### Create a Bandwidth Voice API application
+
+Follow the steps in [How to Create a Voice API Application](https://support.bandwidth.com/hc/en-us/articles/360035060934-How-to-Create-a-Voice-API-Application-V2-) to create your Voice API appliation.
+
+In step 7 and 8, make sure they are set to POST.
+
+In step 9, provide the publicly accessible URL of your sample app. You need to add `/incomingCall` to the end of this URL in the Voice Application settings.
+
+You do no need to set a callback user id or password.
+
+Create the application and make note of your _Application ID_. You will provide this in the settings below.
+
+### Configure your sample app
+
+Copy the default configuration files
+
+```bash
+cp .env.default .env
 ```
 
-# Callback URLs
+Add your Bandwidth account settings to `.env`:
+- ACCOUNT_ID
+- USERNAME
+- PASSWORD
 
-For a detailed introduction to Bandwidth Callbacks see https://dev.bandwidth.com/guides/callbacks/callbacks.html
+Add your Voice API application information:
+- VOICE_APPLICATION_ID
+- VOICE_CALLBACK_URL
+- VOICE_APPLICATION_PHONE_NUMBER
 
-Below are the callback paths:
-* `/callbacks/voiceCallback`
-* `<add other callbacks>`
+To make an outbound call from the browser, add a phone number to dial:
+- OUTBOUND_PHONE_NUMBER
 
-## Ngrok
+You can ignore the other settings in the `.env.default` file.
 
-A simple way to set up a local callback URL for testing is to use the free tool [ngrok](https://ngrok.com/).  
-After you have downloaded and installed `ngrok` run the following command to open a public tunnel to your port (`$PORT`)
-```cmd
-ngrok http $PORT
+### Install dependencies and build
+
+```bash
+npm install
+npm start
 ```
-You can view your public URL at `http://127.0.0.1:{PORT}` after ngrok is running.  You can also view the status of the tunnel and requests/responses here.
+
+### Communicate!
+
+Browse to [http://localhost:5000](http://localhost:5000) and grant permission to use your microphone.
+
+You should now be able to make and receive calls using your browser! The web UI will indicate when you are connected.
+
+Enjoy!
