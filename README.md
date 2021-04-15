@@ -41,17 +41,17 @@ cp .env.default .env
 ```
 
 Add your Bandwidth account settings to `.env`:
-- ACCOUNT_ID
-- USERNAME
-- PASSWORD
+- BW_ACCOUNT_ID
+- BW_USERNAME
+- BW_PASSWORD
 
 Add your Voice API application information:
-- VOICE_APPLICATION_ID
-- VOICE_CALLBACK_URL
-- VOICE_APPLICATION_PHONE_NUMBER
+- BW_VOICE_APPLICATION_ID
+- BASE_CALLBACK_URL
+- BW_NUMBER
 
 To make an outbound call from the browser, add a phone number to dial:
-- OUTBOUND_PHONE_NUMBER
+- USER_NUMBER
 
 You can ignore the other settings in the `.env.default` file.
 
