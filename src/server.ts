@@ -10,13 +10,13 @@ dotenv.config();
 const app = express();
 app.use(bodyParser.json());
 const port = process.env.PORT || 5000;
-const accountId = <string>process.env.ACCOUNT_ID;
-const username = <string>process.env.USERNAME;
-const password = <string>process.env.PASSWORD;
-const voiceApplicationPhoneNumber = <string>process.env.VOICE_APPLICATION_PHONE_NUMBER;
-const voiceApplicationId = <string>process.env.VOICE_APPLICATION_ID;
-const voiceCallbackUrl = <string>process.env.VOICE_CALLBACK_URL;
-const outboundPhoneNumber = <string>process.env.OUTBOUND_PHONE_NUMBER;
+const accountId = <string>process.env.BW_ACCOUNT_ID;
+const username = <string>process.env.BW_USERNAME;
+const password = <string>process.env.BW_PASSWORD;
+const voiceApplicationPhoneNumber = <string>process.env.BW_NUMBER;
+const voiceApplicationId = <string>process.env.BW_VOICE_APPLICATION_ID;
+const voiceCallbackUrl = <string>process.env.BASE_CALLBACK_URL;
+const outboundPhoneNumber = <string>process.env.USER_NUMBER;
 
 const callControlUrl = `${process.env.BANDWIDTH_WEBRTC_CALL_CONTROL_URL}/accounts/${accountId}`;
 const sipxNumber = <string>process.env.BANDWIDTH_WEBRTC_SIPX_PHONE_NUMBER;
@@ -24,7 +24,7 @@ const sipxNumber = <string>process.env.BANDWIDTH_WEBRTC_SIPX_PHONE_NUMBER;
 // Check to make sure required environment variables are set
 if (!accountId || !username || !password) {
   console.error(
-    "ERROR! Please set the ACCOUNT_ID, USERNAME, and PASSWORD environment variables before running this app"
+    "ERROR! Please set the BW_ACCOUNT_ID, BW_USERNAME, and BW_PASSWORD environment variables before running this app"
   );
   process.exit(1);
 }
