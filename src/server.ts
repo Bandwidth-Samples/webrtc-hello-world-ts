@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import bodyParser from "body-parser";
 import axios from "axios";
-import jwt_decode from "jwt-decode";
+const bandwidthWebRTC = require("@bandwidth/webrtc");
 
 dotenv.config();
 
@@ -19,7 +19,6 @@ const voiceCallbackUrl = <string>process.env.BASE_CALLBACK_URL;
 const outboundPhoneNumber = <string>process.env.USER_NUMBER;
 
 const callControlUrl = `${process.env.BANDWIDTH_WEBRTC_CALL_CONTROL_URL}/accounts/${accountId}`;
-const sipxNumber = <string>process.env.BANDWIDTH_WEBRTC_SIPX_PHONE_NUMBER;
 
 // Check to make sure required environment variables are set
 if (!accountId || !username || !password) {
@@ -34,6 +33,7 @@ interface Participant {
   token: string;
 }
 
+let webRTCController = bandwidthWebRTC.APIController;
 let sessionId: string;
 let calls: Map<string, Participant> = new Map(); // Call IDs to Participants
 
@@ -81,7 +81,7 @@ app.post("/incomingCall", async (req, res) => {
   calls.set(callId, participant);
 
   // This is the response payload that we will send back to the Voice API to transfer the call into the WebRTC session
-  const bxml = await generateTransferBxml(participant.token);
+  const bxml = webRTCController.generateTransferBxml(participant.token);
 
   // Send the payload back to the Voice API
   res.contentType("application/xml").send(bxml);
@@ -103,7 +103,11 @@ app.post("/callAnswered", async (req, res) => {
   }
 
   // This is the response payload that we will send back to the Voice API to transfer the call into the WebRTC session
-  const bxml = await generateTransferBxml(participant.token);
+  const bxml = `<?xml version="1.0" encoding="UTF-8" ?>
+  <Response>
+      <SpeakSentence voice="julie">Thank you. Connecting you to your conference now.</SpeakSentence>
+      ${webRTCController.generateTransferBxmlVerb(participant.token)}
+  </Response>`;
 
   // Send the payload back to the Voice API
   res.contentType("application/xml").send(bxml);
@@ -193,9 +197,9 @@ const createParticipant = async (tag: string): Promise<Participant> => {
   let createParticipantResponse = await axios.post(
     `${callControlUrl}/participants`,
     {
-      callbackUrl: "https://example.com",
       publishPermissions: ["AUDIO"],
       tag: tag,
+      deviceApiVersion: "V3"
     },
     {
       auth: {
@@ -277,16 +281,3 @@ const callPhone = async (phoneNumber: string, participant: Participant) => {
   }
 };
 
-/**
- * Helper method to generate transfer BXML from a WebRTC device token
- * @param deviceToken device token received from the call control API for a participant
- */
-const generateTransferBxml = async (deviceToken: string) => {
-  //Get the tid out of the participant jwt
-  var decoded: any = jwt_decode(deviceToken);
-
-  return `<?xml version="1.0" encoding="UTF-8" ?>
-    <Response>
-      <Transfer transferCallerId="${decoded.tid}"><PhoneNumber>${sipxNumber}</PhoneNumber></Transfer>
-    </Response>`;
-};
