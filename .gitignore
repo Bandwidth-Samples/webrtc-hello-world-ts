@@ -4,3 +4,5 @@ build
 .env
 frontend/build
 frontend/node_modules
+*.iml
+.idea
