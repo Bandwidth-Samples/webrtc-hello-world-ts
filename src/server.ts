@@ -183,7 +183,10 @@ const getSessionId = async (): Promise<string> => {
       let getSessionResponse = await webRTCController.getSession(accountId, sessionId);
       const existingSession: Session = getSessionResponse.result;
       console.log(`using session ${existingSession.id}`);
-      return sessionId;
+      if (!existingSession.id) {
+        throw Error('No session ID in result');
+      }
+      return existingSession.id;
     } catch (e) {
       console.log(`session ${sessionId} is invalid, creating a new session`);
     }
