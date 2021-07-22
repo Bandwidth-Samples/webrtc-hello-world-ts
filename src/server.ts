@@ -103,7 +103,7 @@ app.post("/incomingCall", async (req, res) => {
   calls.set(callId, participant);
 
   // This is the response payload that we will send back to the Voice API to transfer the call into the WebRTC session
-  const bxml = WebRtcController.generateTransferBxml(participant.token);
+  const bxml = WebRtcController.generateTransferBxml(participant.token, callId);
 
   // Send the payload back to the Voice API
   res.contentType("application/xml").send(bxml);
@@ -116,7 +116,7 @@ app.post("/incomingCall", async (req, res) => {
 app.post("/callAnswered", async (req, res) => {
   const callId = req.body.callId;
   console.log(`received answered callback for call ${callId} tp ${req.body.to}`);
-
+  
   const participant = calls.get(callId);
   if (!participant) {
     console.log(`no participant found for ${callId}!`);
@@ -128,7 +128,7 @@ app.post("/callAnswered", async (req, res) => {
   const bxml = `<?xml version="1.0" encoding="UTF-8" ?>
   <Response>
       <SpeakSentence voice="julie">Thank you. Connecting you to your conference now.</SpeakSentence>
-      ${WebRtcController.generateTransferBxmlVerb(participant.token)}
+      ${WebRtcController.generateTransferBxmlVerb(participant.token, callId)}
   </Response>`;
 
   // Send the payload back to the Voice API
