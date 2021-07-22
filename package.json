@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@bandwidth/voice": "^2.0.2",
-    "@bandwidth/webrtc": "^1.1.0",
+    "@bandwidth/webrtc": "^1.2.0",
     "@types/express": "^4.17.2",
     "@types/jwt-decode": "^2.2.1",
     "body-parser": "^1.19.0",
